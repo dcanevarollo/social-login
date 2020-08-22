@@ -1,13 +1,13 @@
 import React, { createContext, useState, useContext } from 'react';
 
 import User from '../models/user';
-
 import api from '../services/api';
 
 interface Auth {
   signed: boolean;
   user: User | null;
-  signIn(): Promise<void>;
+  signIn(tokenId: string): Promise<void>;
+  signOut(): Promise<void>;
 };
 
 interface Token {
@@ -21,20 +21,46 @@ const AuthContext = createContext<Auth>({} as Auth);
 export const AuthProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  async function signIn() {
-    const response = await api.get<{ token: Token, user: User }>('login');
+  const accessKey = '@social-login/access-token';
 
-    const { token, user } = response.data;
+  async function signIn(tokenId: string) {
+    try {
+      const response = await api.post<{ token: Token, user: User }>(
+        'auth/login', 
+        { token: tokenId }
+      );
+  
+      const { token, user } = response.data;
+  
+      api.defaults.headers.Authorization = `Bearer ${token.token}`;
+  
+      setUser(user);
+  
+      localStorage.setItem(accessKey, JSON.stringify(token));
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
-    api.defaults.headers.Authorization = `Bearer ${token.token}`;
+  async function signOut() {
+    try {
+      await api.delete('auth/logout');
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setUser(null);
 
-    setUser(user);
-
-    localStorage.setItem('@social-login/access-token', JSON.stringify(token));
+      localStorage.removeItem(accessKey);
+    }
   }
 
   return (
-    <AuthContext.Provider value={{ signed: !!user, user: null, signIn }}>
+    <AuthContext.Provider value={{ 
+      signed: !!user,
+      user,
+      signIn,
+      signOut 
+    }}>
       {children}
     </AuthContext.Provider>
   );

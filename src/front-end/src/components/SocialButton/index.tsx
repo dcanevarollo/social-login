@@ -5,7 +5,7 @@ import { useAuth } from '../../contexts/auth';
 
 interface Props {
   type: 'google' | 'facebook';
-};
+}
 
 const clientId = `${process.env.REACT_APP_GOOGLE_CLIENT_ID}.apps.googleusercontent.com`;
 
@@ -16,7 +16,7 @@ const SocialButton: React.FC<Props> = ({ type }) => {
     signIn(response.tokenId);
   }
 
-  if (type === 'google')
+  if (type === 'google') {
     return (
       <GoogleLogin
         clientId={clientId}
@@ -26,9 +26,10 @@ const SocialButton: React.FC<Props> = ({ type }) => {
         cookiePolicy="single_host_origin"
       />
     );
-  
+  }
+
   // TODO : Facebook login button
-  return <span>Facebook</span>
+  return <span>Facebook</span>;
 };
 
 export default SocialButton;

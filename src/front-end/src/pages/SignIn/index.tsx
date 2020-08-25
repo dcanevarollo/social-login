@@ -10,6 +10,6 @@ const SignIn: React.FC = () => (
 
     <SocialButton type="google" />
   </div>
-)
+);
 
 export default SignIn;

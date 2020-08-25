@@ -8,13 +8,13 @@ interface Auth {
   user: User | null;
   signIn(tokenId: string): Promise<void>;
   signOut(): Promise<void>;
-};
+}
 
 interface Token {
   type: string;
   token: string;
   expires_at: string;
-};
+}
 
 const AuthContext = createContext<Auth>({} as Auth);
 
@@ -25,17 +25,17 @@ export const AuthProvider: React.FC = ({ children }) => {
 
   async function signIn(tokenId: string) {
     try {
-      const response = await api.post<{ token: Token, user: User }>(
-        'auth/login', 
+      const response = await api.post<{ token: Token; user: User }>(
+        'auth/login',
         { token: tokenId }
       );
-  
-      const { token, user } = response.data;
-  
+
+      const { token, user: resUser } = response.data;
+
       api.defaults.headers.Authorization = `Bearer ${token.token}`;
-  
-      setUser(user);
-  
+
+      setUser(resUser);
+
       localStorage.setItem(accessKey, JSON.stringify(token));
     } catch (error) {
       console.error(error);
@@ -55,12 +55,14 @@ export const AuthProvider: React.FC = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ 
-      signed: !!user,
-      user,
-      signIn,
-      signOut 
-    }}>
+    <AuthContext.Provider
+      value={{
+        signed: !!user,
+        user,
+        signIn,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

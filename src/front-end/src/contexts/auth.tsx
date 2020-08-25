@@ -6,7 +6,7 @@ import api from '../services/api';
 interface Auth {
   signed: boolean;
   user: User | null;
-  signIn(token: string): Promise<void>;
+  signIn(token: string, type: 'google' | 'facebook'): Promise<void>;
   signOut(): Promise<void>;
 }
 
@@ -40,11 +40,11 @@ export const AuthProvider: React.FC = ({ children }) => {
     }
   }, []);
 
-  async function signIn(token: string) {
+  async function signIn(token: string, type: 'google' | 'facebook') {
     try {
       const response = await api.post<{ token: Token; user: User }>(
         'auth/login',
-        { token }
+        { token, type }
       );
 
       const { token: tokenObj, user: resUser } = response.data;

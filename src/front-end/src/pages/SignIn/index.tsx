@@ -1,6 +1,7 @@
 import React from 'react';
 
-import SocialButton from '../../components/SocialButton';
+import GoogleButton from '../../components/GoogleButton';
+import FacebookButton from '../../components/FacebookButton';
 
 import './styles.css';
 
@@ -8,7 +9,10 @@ const SignIn: React.FC = () => (
   <div className="container">
     <h1>SignIn</h1>
 
-    <SocialButton type="google" />
+    <div className="buttons">
+      <GoogleButton />
+      <FacebookButton />
+    </div>
   </div>
 );
 

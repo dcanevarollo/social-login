@@ -6,7 +6,7 @@ import api from '../services/api';
 interface Auth {
   signed: boolean;
   user: User | null;
-  signIn(tokenId?: string, profile?: User): Promise<void>;
+  signIn(token: string): Promise<void>;
   signOut(): Promise<void>;
 }
 
@@ -14,11 +14,6 @@ interface Token {
   type: string;
   token: string;
   expires_at: string;
-}
-
-interface ApiResponse {
-  token: Token;
-  user: User;
 }
 
 const AuthContext = createContext<Auth>({} as Auth);
@@ -45,17 +40,12 @@ export const AuthProvider: React.FC = ({ children }) => {
     }
   }, []);
 
-  async function signIn(tokenId?: string, profile?: User) {
+  async function signIn(token: string) {
     try {
-      let response;
-
-      if (tokenId) {
-        response = await api.post<ApiResponse>('auth/login', {
-          token: tokenId,
-        });
-      } else {
-        response = await api.post<ApiResponse>('users', profile);
-      }
+      const response = await api.post<{ token: Token; user: User }>(
+        'auth/login',
+        { token }
+      );
 
       const { token: tokenObj, user: resUser } = response.data;
 
@@ -66,7 +56,7 @@ export const AuthProvider: React.FC = ({ children }) => {
       localStorage.setItem(accessKey, JSON.stringify(tokenObj));
       localStorage.setItem(userKey, JSON.stringify(resUser));
     } catch (error) {
-      console.error(error);
+      console.error(error.response?.data);
     }
   }
 
@@ -74,7 +64,7 @@ export const AuthProvider: React.FC = ({ children }) => {
     try {
       await api.delete('auth/logout');
     } catch (error) {
-      console.error(error);
+      console.error(error.response?.data);
     } finally {
       setUser(null);
 

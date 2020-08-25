@@ -21,7 +21,6 @@
 import Route from '@ioc:Adonis/Core/Route';
 
 Route.post('auth/login', 'AuthController.store');
-Route.post('users', 'UsersController.store');
 
 Route.group(() => {
   Route.delete('auth/logout', 'AuthController.destroy');

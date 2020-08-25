@@ -8,10 +8,7 @@ const SignIn: React.FC = () => (
   <div className="container">
     <h1>SignIn</h1>
 
-    <div className="buttons">
-      <SocialButton type="google" goal="signin" />
-      <SocialButton type="google" goal="signup" />
-    </div>
+    <SocialButton type="google" />
   </div>
 );
 

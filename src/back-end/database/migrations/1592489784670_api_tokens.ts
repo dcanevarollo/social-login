@@ -11,7 +11,7 @@ export default class ApiTokens extends BaseSchema {
         .unsigned()
         .references('id')
         .inTable('users')
-        .onDelete('CASCADE');
+        .onDelete('cascade');
       table.string('name').notNullable();
       table.string('type').notNullable();
       table.string('token', 64).notNullable();

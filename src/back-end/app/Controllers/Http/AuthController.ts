@@ -1,7 +1,15 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 
 export default class AuthController {
-  public async store({}: HttpContextContract) {}
+  public async store({ request, response }: HttpContextContract) {
+    const { token } = request.post();
 
-  public async delete({}: HttpContextContract) {}
+    return response.ok(null);
+  }
+
+  public async delete({ response, auth }: HttpContextContract) {
+    await auth.logout();
+
+    return response.ok(null);
+  }
 }

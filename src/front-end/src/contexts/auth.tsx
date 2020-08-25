@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 import User from '../models/user';
 import api from '../services/api';
@@ -6,7 +6,7 @@ import api from '../services/api';
 interface Auth {
   signed: boolean;
   user: User | null;
-  signIn(tokenId: string): Promise<void>;
+  signIn(tokenId?: string, profile?: User): Promise<void>;
   signOut(): Promise<void>;
 }
 
@@ -16,27 +16,55 @@ interface Token {
   expires_at: string;
 }
 
+interface ApiResponse {
+  token: Token;
+  user: User;
+}
+
 const AuthContext = createContext<Auth>({} as Auth);
 
 export const AuthProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
   const accessKey = '@social-login/access-token';
+  const userKey = '@social-login/auth-user';
 
-  async function signIn(tokenId: string) {
+  useEffect(() => {
+    const tokenStored = localStorage.getItem(accessKey);
+    const userStored = localStorage.getItem(userKey);
+
+    if (tokenStored && userStored) {
+      const tokenObj: Token = JSON.parse(tokenStored);
+      api.defaults.headers.Authorization = `Bearer ${tokenObj.token}`;
+
+      const userObj: User = JSON.parse(userStored);
+      setUser(userObj);
+    } else {
+      // Just to be sure...
+      localStorage.clear();
+    }
+  }, []);
+
+  async function signIn(tokenId?: string, profile?: User) {
     try {
-      const response = await api.post<{ token: Token; user: User }>(
-        'auth/login',
-        { token: tokenId }
-      );
+      let response;
 
-      const { token, user: resUser } = response.data;
+      if (tokenId) {
+        response = await api.post<ApiResponse>('auth/login', {
+          token: tokenId,
+        });
+      } else {
+        response = await api.post<ApiResponse>('users', profile);
+      }
 
-      api.defaults.headers.Authorization = `Bearer ${token.token}`;
+      const { token: tokenObj, user: resUser } = response.data;
+
+      api.defaults.headers.Authorization = `Bearer ${tokenObj.token}`;
 
       setUser(resUser);
 
-      localStorage.setItem(accessKey, JSON.stringify(token));
+      localStorage.setItem(accessKey, JSON.stringify(tokenObj));
+      localStorage.setItem(userKey, JSON.stringify(resUser));
     } catch (error) {
       console.error(error);
     }
@@ -50,7 +78,7 @@ export const AuthProvider: React.FC = ({ children }) => {
     } finally {
       setUser(null);
 
-      localStorage.removeItem(accessKey);
+      localStorage.clear();
     }
   }
 

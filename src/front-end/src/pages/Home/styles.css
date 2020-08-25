@@ -1,0 +1,36 @@
+.container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h1 {
+  margin-bottom: 40px;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 20px;
+}
+
+p {
+  margin-bottom: 20px;
+}
+
+button {
+  cursor: pointer;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  opacity: 0.7;
+  transition: ease 0.3s;
+}
+
+button:hover {
+  opacity: 1;
+}
